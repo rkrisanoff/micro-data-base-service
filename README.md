@@ -67,7 +67,7 @@ class MessageListerExample : MessageListener {
 ```
 ### Активное сообщение
 
-Тут всё просто - добавляем [RedisMessageService](src/main/kotlin/ifmo/dma/microdb/services/RedisMessageService.kt) в метод и пользуемся методом `publishAndWaitForResponse`. Если нужно просто отправить сообщение в канал и не ждать ответа - используем метод `publish`.
+Тут всё просто - добавляем [RedisMessageService](src/main/kotlin/ifmo/dma/microdb/services/RedisMessageService.kt) и пользуемся методом `publishAndWaitForResponse`. Если нужно просто отправить сообщение в канал и не ждать ответа - используем метод `publish`.
 
 Например, так
 
