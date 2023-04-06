@@ -18,8 +18,6 @@ dependencies {
 ```
 Добавляем в главный класс `@ConfigurationPropertiesScan`
 
-Создаём класс 
-
 Полностью копируем package [redisConfig](src/main/kotlin/ifmo/dma/microdb/redisConfig)
 
 ### Пассивные слушатели
