@@ -67,22 +67,26 @@ class MessageListerExample : MessageListener {
 ```
 ### Активное сообщение
 
-Тут всё просто - добавляем [RedisMessageService](src/main/kotlin/ifmo/dma/microdb/services/RedisMessageService.kt) и пользуемся методом `publishAndWaitForResponse`. Если нужно просто отправить сообщение в канал и не ждать ответа - используем метод `publish`.
+Тут всё просто - добавляем [RedisMessageService](src/main/kotlin/ifmo/dma/microdb/services/RedisMessageService.kt) и пользуемся методом `publishAndPop`. Если нужно просто отправить сообщение в канал и не ждать ответа - используем метод `publish`.
 
 Например, так
 
 ```kotlin
 @RestController
-class ExampleController @Autowired constructor(val redisMessageService: RedisMessageService) {
+class ExampleController @Autowired constructor(
+    val redisMessageService: RedisMessageService,
+) {
     private val defaultTimeout = Duration.ofSeconds(100)
+
 
     @GetMapping("/api/hello")
     fun hello(@RequestParam message: String): String {
-        return redisMessageService.publishAndWaitForResponse(
-            "input", message,
-            "output", defaultTimeout
-        )
-            ?: "Message sent, but no response received yet. :("
+        return redisMessageService.publishAndPop(
+            "input",
+            message,
+            "output",
+            defaultTimeout
+        ) ?: "Message sent, but no response received yet. :("
     }
 }
 ```
