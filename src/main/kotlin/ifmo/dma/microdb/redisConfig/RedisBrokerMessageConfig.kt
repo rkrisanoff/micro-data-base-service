@@ -37,12 +37,14 @@ class RedisMessageBrokerConfig {
         redisConnectionFactory: RedisConnectionFactory,
          messageListenerExampleAdapter:MessageListenerAdapter,
         messageListenerExample2Adapter:MessageListenerAdapter,
+        messageListenerUserAdapter:MessageListenerAdapter
 
     ): RedisMessageListenerContainer {
         val container = RedisMessageListenerContainer()
         container.setConnectionFactory(redisConnectionFactory)
-        container.addMessageListener(messageListenerExampleAdapter, ChannelTopic("example-channel-name"))
-        container.addMessageListener(messageListenerExample2Adapter, ChannelTopic("example2-channel-name"))
+        container.addMessageListener(messageListenerUserAdapter,ChannelTopic("md-user-request"))
+        container.addMessageListener(messageListenerExampleAdapter, ChannelTopic("md-example-channel-name"))
+        container.addMessageListener(messageListenerExample2Adapter, ChannelTopic("md-example2-channel-name"))
         return container
     }
 

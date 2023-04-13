@@ -1,5 +1,6 @@
 package ifmo.dma.microdb.redisConfig
 
+import ifmo.dma.microdb.listeners.MessageListenerUser
 import ifmo.dma.microdb.listeners.MessageListerExample
 import ifmo.dma.microdb.listeners.MessageListerExample2
 import org.springframework.context.annotation.Bean
@@ -24,4 +25,9 @@ class MessageListenersConfiguration {
     fun messageListenerExample2Adapter():MessageListenerAdapter{
         return wrapInAdapter(MessageListerExample2())
     }
+    @Bean
+    fun messageListenerUserAdapter(messageListenerUser:MessageListenerUser):MessageListenerAdapter{
+        return wrapInAdapter(messageListenerUser)
+    }
+
 }
