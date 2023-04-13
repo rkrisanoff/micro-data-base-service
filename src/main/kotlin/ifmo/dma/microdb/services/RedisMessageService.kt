@@ -8,6 +8,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
+
 @Service
 class RedisMessageService(
     private val redisConnectionFactory: RedisConnectionFactory
@@ -17,6 +18,27 @@ class RedisMessageService(
         connection.publish(channel.toByteArray(), message.toByteArray())
         connection.close()
     }
+
+    fun push(queue: String, message: String) {
+        val connection = redisConnectionFactory.connection
+        connection.commands().lPush(
+            queue.toByteArray(),
+            message.toByteArray()
+        )
+        connection.close()
+    }
+
+    fun pop(queue: String, timeout: Duration) :String{
+        val connection = redisConnectionFactory.connection
+
+        val response = connection.commands().bLPop(
+            timeout.toSeconds().toInt(),
+            queue.toByteArray()
+        )!![1]!!.decodeToString()
+        connection.close()
+        return response
+    }
+
 
     /**
      * @param toChannel - name of channel where the message will be sent
@@ -50,5 +72,25 @@ class RedisMessageService(
             connection.close()
         }
         return null
+    }
+
+    fun publishAndPop(
+        toChannel: String,
+        message: String,
+        fromQueue: String,
+        timeout: Duration
+    ): String {
+        val connection = redisConnectionFactory.connection
+        connection.commands().publish(
+            toChannel.toByteArray(),
+            message.toByteArray()
+        )
+
+        val response = connection.commands().bLPop(
+            timeout.toSeconds().toInt(),
+            fromQueue.toByteArray()
+        )!![1]!!.decodeToString()
+        connection.close()
+        return response
     }
 }
