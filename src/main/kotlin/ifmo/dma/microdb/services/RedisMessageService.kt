@@ -79,7 +79,7 @@ class RedisMessageService(
         message: String,
         fromQueue: String,
         timeout: Duration
-    ): String {
+    ): String? {
         val connection = redisConnectionFactory.connection
         connection.commands().publish(
             toChannel.toByteArray(),
@@ -89,7 +89,7 @@ class RedisMessageService(
         val response = connection.commands().bLPop(
             timeout.toSeconds().toInt(),
             fromQueue.toByteArray()
-        )!![1]!!.decodeToString()
+        )?.get(1)?.decodeToString()
         connection.close()
         return response
     }
