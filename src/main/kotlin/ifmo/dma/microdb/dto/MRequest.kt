@@ -5,5 +5,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class MRequest @JsonCreator constructor  (
     @JsonProperty("command") val command:String,
-    @JsonProperty("payload") val payload:Any
+    @JsonProperty("payload") val payload:Map<String,Any>
 )
