@@ -27,13 +27,11 @@ class MessageProcessorService(
     fun pushError(queue: String, errorMessage: String, responseCode: Int) {
         redisMessageService.push(
             queue, mapper.writeValueAsString(
-                mapper.writeValueAsString(
-                    MResponse(
-                        false,
-                        errorMessage,
-                        responseCode,
-                        null
-                    )
+                MResponse(
+                    false,
+                    errorMessage,
+                    responseCode,
+                    object {}
                 )
             )
         )

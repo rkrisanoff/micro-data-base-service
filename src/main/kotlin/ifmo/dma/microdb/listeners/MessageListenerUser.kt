@@ -1,12 +1,11 @@
 package ifmo.dma.microdb.listeners
 
+import com.fasterxml.jackson.databind.DatabindException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
-import ifmo.dma.microdb.dto.UserDTO
+import ifmo.dma.microdb.dto.MRequest
 import ifmo.dma.microdb.entity.User
 import ifmo.dma.microdb.repo.UserRepo
 import ifmo.dma.microdb.services.MessageProcessorService
-import org.hibernate.PropertyValueException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.connection.Message
 import org.springframework.data.redis.connection.MessageListener
@@ -23,72 +22,90 @@ class MessageListenerUser @Autowired constructor(
     private val responseQueueName = "md-user-response"
 
     override fun onMessage(message: Message, bytes: ByteArray?) {
-        val messageTree = mapper.readTree(String(message.body))
-        val commandName = messageTree.get("command")?.asText()
-        if (commandName == null) {
+        try {
+            val mRequest: MRequest = mapper.readValue(message.body, MRequest::class.java)
+
+            when (mRequest.command) {
+                "findUserByLogin" -> {
+                    if (!mRequest.payload.keys.contains("login")) {
+                        messageProcessorService.pushError(
+                            responseQueueName,
+                            "The property `login` undefined",
+                            500
+                        )
+                        return
+                    }
+                    val user: Optional<User> = userRepo.findUserByLogin(mRequest.payload["login"] as String)
+                    if (user.isPresent) {
+                        messageProcessorService.push(
+                            responseQueueName,
+                            mapOf(Pair("user", user.get()))
+                        )
+                    } else {
+                        messageProcessorService.pushError(
+                            responseQueueName,
+                            "The user with login (${mRequest.payload["login"] as String} doesn't exist",
+                            500
+                        )
+                    }
+
+                }
+
+                "existsUserByLogin" -> {
+                    if (!mRequest.payload.keys.contains("login")) {
+                        messageProcessorService.pushError(
+                            responseQueueName,
+                            "The property `login` undefined",
+                            500
+                        )
+                        return
+                    }
+                    val userExists = userRepo.existsUserByLogin(mRequest.payload["login"] as String)
+                    messageProcessorService.push(responseQueueName, mapOf(Pair("exists", userExists)))
+                }
+
+                "save" -> {
+                        if (!mRequest.payload.keys.contains("user")) {
+                            messageProcessorService.pushError(
+                                responseQueueName,
+                                "The property `user` undefined",
+                                500
+                            )
+                            return
+                        }
+                        val userMap: LinkedHashMap<*, *> = mRequest.payload["user"] as LinkedHashMap<*, *>
+                        if (!(userMap.contains("login")&&userMap.contains("username")&&userMap.contains("password"))){
+                            messageProcessorService.pushError(
+                                responseQueueName,
+                                "The format of `user` object wrong",
+                                500
+                            )
+                            return
+                        }
+                        val user = User()
+
+                        user.login = userMap["login"] as String
+                        user.password = userMap["password"] as String
+                        user.username = userMap["username"] as String
+                        userRepo.save(user)
+                        messageProcessorService.push(responseQueueName, user)
+
+                }
+
+                else ->
+                    messageProcessorService.pushError(
+                        responseQueueName,
+                        "Wrong command ${mRequest.command} on ${message.channel} channel! Try again!",
+                        500
+                    )
+
+            }
+        } catch (e: DatabindException) {
             messageProcessorService.pushError(
                 responseQueueName,
-                "Command undefined!",
+                "TOTAL WRONG REQUEST! FUCK YOU",
                 500
             )
         }
-        when (commandName) {
-            "findUserByLogin" -> {
-                val user: Optional<User> = userRepo.findUserByLogin((messageTree.get("payload").get("login").asText()))
-                if (user.isPresent) {
-                    val login = user.get().login
-                    if (login != null) {
-                        messageProcessorService.push(
-                            responseQueueName,
-                            mapOf(Pair("login", login))
-                        )
-                    }
-                } else {
-                    messageProcessorService.pushError(
-                        responseQueueName,
-                        "The user with login (${messageTree.get("payload").get("login").asText()} doesn't exist",
-                        500
-                    )
-                }
-
-            }
-
-            "existsUserByLogin" -> {
-                val userExists = userRepo.existsUserByLogin(messageTree.get("payload").get("login").asText())
-                messageProcessorService.push(responseQueueName, userExists)
-
-
-            }
-
-            "save" -> {
-                try {
-                    val userDTO: UserDTO =
-                        mapper.readValue(messageTree.get("payload").get("user").asText(), UserDTO::class.java)
-
-                    val user = User()
-
-                    user.login = userDTO.login
-                    user.password = userDTO.password
-                    user.username = userDTO.username
-                    userRepo.save(user)
-                } catch (e: UnrecognizedPropertyException) {
-                    println("The '${e.propertyName}'-property didn't recognize")
-                } catch (e: PropertyValueException) {
-                    println("Error: missing required field '${e.propertyName}'")
-                } catch (e: org.springframework.dao.DataIntegrityViolationException) {
-                    println("DATA INTEGRITY ${e.message}")
-                }
-            }
-
-            else -> {
-                messageProcessorService.pushError(
-                    responseQueueName,
-                    "Wrong command on ${message.channel} channel! Try again!",
-                    500
-                )
-            }
-        }
-
     }
-
 }
