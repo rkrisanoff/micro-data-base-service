@@ -16,12 +16,12 @@ class MessageListenerUser @Autowired constructor(
     @Autowired private val jsonSchemaReaderFromResources: JsonSchemaReaderFromResources,
     @Autowired private val userRepo: UserRepo,
     @Autowired private val messageProcessorService: MessageProcessorService,
-    @Autowired private val mapper:ObjectMapper
-) : MessageListenerMSD( messageProcessorService) {
+    @Autowired private val mapper: ObjectMapper
+) : MessageListenerMSD(messageProcessorService, mapper) {
 
-    override  val responseQueueName = "md-user-response"
-    override  val commandSet = setOf<String>("findUserByLogin", "existsUserByLogin", "save")
-    override  val schemas = mapOf<String, JsonSchema>(
+    override val responseQueueName = "md-user-response"
+    override val commandSet = setOf<String>("findUserByLogin", "existsUserByLogin", "save")
+    override val schemas = mapOf<String, JsonSchema>(
         Pair(
             "general",
             jsonSchemaReaderFromResources.readJsonSchemaFromResource("general.json")
@@ -44,58 +44,59 @@ class MessageListenerUser @Autowired constructor(
 
     override fun onMessage(message: Message, pattern: ByteArray?) {
         val content = message.body.decodeToString()
-        val errors = schemas["general"]!!.validate(mapper.readTree(content))
-        if (errors.isNotEmpty()) {
+        !validateGeneral(content) && return
+        val request = mapper.readTree(content)
+        val command = request.get("command").asText()
+        val payload = request.get("payload")
+        if (!commandSet.contains(command)) {
             messageProcessorService.pushError(
                 responseQueueName,
-                (errors.map { t -> t.message }).joinToString(prefix = "", postfix = "", separator = ", "),
-                1
+                "Wrong command $command on ${message.channel} channel! Try again!",
+                500
             )
             return
         }
-        val command = mapper.readTree(content).get("command").asText()
-        val payload = mapper.readTree(content).get("payload")
 
-        if (commandSet.contains(command) && isValidPayloadForCommand(command, payload)) {
-            when (command) {
-                "findUserByLogin" -> {
-                    val user: Optional<User> = userRepo.findUserByLogin(payload.get("login").asText())
-                    if (user.isPresent) {
-                        messageProcessorService.push(
-                            responseQueueName,
-                            mapOf(Pair("user", user.get()))
-                        )
-                    } else {
-                        messageProcessorService.pushError(
-                            responseQueueName,
-                            "The user with login (${payload.get("login").asText()} doesnt exist",
-                            500
-                        )
-                    }
+        !validatePayloadForCommand(command, payload) && return
 
-                }
-
-                "existsUserByLogin" -> {
-                    val userExists = userRepo.existsUserByLogin(payload["login"].asText())
-                    messageProcessorService.push(responseQueueName, mapOf(Pair("exists", userExists)))
-                }
-
-                "save" -> {
-                    val user = User()
-                    user.login = payload.get("user")["login"].asText()
-                    user.password = payload.get("user")["password"].asText()
-                    user.username = payload.get("user")["username"].asText()
-                    userRepo.save(user)
-                    messageProcessorService.push(responseQueueName, user)
-                }
-
-                else ->
+        when (command) {
+            "findUserByLogin" -> {
+                val user: Optional<User> = userRepo.findUserByLogin(payload.get("login").asText())
+                if (user.isPresent) {
+                    messageProcessorService.push(
+                        responseQueueName,
+                        mapOf(Pair("user", user.get()))
+                    )
+                } else {
                     messageProcessorService.pushError(
                         responseQueueName,
-                        "Wrong command $command on ${message.channel} channel! Try again!",
+                        "The user with login (${payload.get("login").asText()} doesnt exist",
                         500
                     )
+                }
+
             }
+
+            "existsUserByLogin" -> {
+                val userExists = userRepo.existsUserByLogin(payload["login"].asText())
+                messageProcessorService.push(responseQueueName, mapOf(Pair("exists", userExists)))
+            }
+
+            "save" -> {
+                val user = User()
+                user.login = payload.get("user")["login"].asText()
+                user.password = payload.get("user")["password"].asText()
+                user.username = payload.get("user")["username"].asText()
+                userRepo.save(user)
+                messageProcessorService.push(responseQueueName, user)
+            }
+
+            else ->
+                messageProcessorService.pushError(
+                    responseQueueName,
+                    "Wrong command $command on ${message.channel} channel! Try again!",
+                    500
+                )
         }
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class JsonSchemaReaderFromResources {
-    fun readSchemaFromResourceAsString(path:String): String {
+    private fun readSchemaFromResourceAsString(path:String): String {
         val resolver: ResourcePatternResolver = PathMatchingResourcePatternResolver()
 
         return resolver.getResource("classpath:json-schemas/$path").inputStream.bufferedReader().use { it.readText() }
