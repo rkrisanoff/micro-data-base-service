@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "properties": {
+    "command": {"type": "string"},
+    "payload": {"type": "object"}
+  },
+  "required": ["command", "payload"]
+}

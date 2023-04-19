@@ -5,9 +5,10 @@ import ifmo.dma.microdb.dto.MResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+
 @Service
 class MessageProcessorService(
-    @Autowired private val redisMessageService: RedisMessageService
+    @Autowired private val redisMessageService: RedisMessageService,
 ) {
 
     private val mapper = ObjectMapper()

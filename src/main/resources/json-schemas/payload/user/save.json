@@ -1,0 +1,40 @@
+{
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "command": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "login": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "login",
+            "username",
+            "password"
+          ]
+        }
+      },
+      "required": [
+        "user"
+      ]
+    }
+  },
+  "required": [
+    "command",
+    "payload"
+  ]
+}
