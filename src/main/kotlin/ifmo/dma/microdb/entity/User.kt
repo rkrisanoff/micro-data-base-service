@@ -8,7 +8,7 @@ class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    var id: Long? = null
+    var id: Int? = null
 
     @Column(unique = true, nullable = false)
     var login: String? = null
@@ -16,4 +16,12 @@ class User {
     var password: String? = null
     @Column(nullable = false)
     var username: String? = null
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinColumn(name = "group_id")
+    var group: Group? = null
+    @OneToOne(mappedBy = "admin", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var myGroup: Group? = null
+
+   // fun createGroup(Gro)
 }

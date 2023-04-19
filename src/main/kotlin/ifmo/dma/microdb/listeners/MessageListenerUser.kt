@@ -3,6 +3,7 @@ package ifmo.dma.microdb.listeners
 import com.fasterxml.jackson.databind.DatabindException
 import com.fasterxml.jackson.databind.ObjectMapper
 import ifmo.dma.microdb.dto.MRequest
+import ifmo.dma.microdb.dto.UserDTO
 import ifmo.dma.microdb.entity.User
 import ifmo.dma.microdb.repo.UserRepo
 import ifmo.dma.microdb.services.MessageProcessorService
@@ -35,11 +36,13 @@ class MessageListenerUser @Autowired constructor(
                         )
                         return
                     }
-                    val user: Optional<User> = userRepo.findUserByLogin(mRequest.payload["login"] as String)
-                    if (user.isPresent) {
+                    val userO: Optional<User> = userRepo.findUserByLogin(mRequest.payload["login"] as String)
+                    if (userO.isPresent) {
+                        val user = userO.get()
+                        val userDTO = UserDTO(user.id, user.login, user.password, user.myGroup != null)
                         messageProcessorService.push(
                             responseQueueName,
-                            mapOf(Pair("user", user.get()))
+                            mapOf(Pair("user", userDTO))
                         )
                     } else {
                         messageProcessorService.pushError(

@@ -9,12 +9,21 @@ class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    var id: Long? = null
+    var id: Int? = null
+    @Column(name = "name", nullable = false)
     var name: String? = null
-    @Column(name="admin_id")
-    var adminId: Long? = null
-    @Column(name="invite_code")
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinColumn(name="admin_id", nullable = false, unique = true)
+    var admin: User? = null
+    @Column(name="invite_code", unique = true)
     var inviteCode: String? = null
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    var members: MutableSet<User> = HashSet()
+
+    fun addMember(user: User) {
+        members.add(user)
+        user.group = this
+    }
 
 }
