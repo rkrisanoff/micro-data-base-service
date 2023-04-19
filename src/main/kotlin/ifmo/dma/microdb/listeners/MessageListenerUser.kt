@@ -1,6 +1,8 @@
 package ifmo.dma.microdb.listeners
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import ifmo.dma.microdb.dto.MRequest
+import ifmo.dma.microdb.dto.UserDTO
 import com.networknt.schema.JsonSchema
 import ifmo.dma.microdb.entity.User
 import ifmo.dma.microdb.repo.UserRepo
@@ -41,7 +43,6 @@ class MessageListenerUser @Autowired constructor(
         ),
     )
 
-
     override fun onMessage(message: Message, pattern: ByteArray?) {
         val content = message.body.decodeToString()
         !validateGeneral(content) && return
@@ -61,20 +62,24 @@ class MessageListenerUser @Autowired constructor(
 
         when (command) {
             "findUserByLogin" -> {
-                val user: Optional<User> = userRepo.findUserByLogin(payload.get("login").asText())
-                if (user.isPresent) {
-                    messageProcessorService.push(
-                        responseQueueName,
-                        mapOf(Pair("user", user.get()))
-                    )
-                } else {
+                //val user: Optional<User> = userRepo.findUserByLogin(payload.get("login").asText())
+                
+               
+                    val userO: Optional<User> = userRepo.findUserByLogin(payload.get("login").asText())
+                    if (userO.isPresent) {
+                        val user = userO.get()
+                        val userDTO = UserDTO(user.id, user.login, user.password, user.myGroup != null)
+                        messageProcessorService.push(
+                            responseQueueName,
+                            mapOf(Pair("user", userDTO))
+                        )
+                    } else {
                     messageProcessorService.pushError(
                         responseQueueName,
-                        "The user with login (${payload.get("login").asText()} doesnt exist",
+                        "The user with login (${payload.get("login").asText()} doesn't exist",
                         500
                     )
                 }
-
             }
 
             "existsUserByLogin" -> {
