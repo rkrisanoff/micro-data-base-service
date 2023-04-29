@@ -24,5 +24,5 @@ class User {
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "queue_id")]
     )
-    val queues: List<Queue> = emptyList()
+    var queues: MutableList<Queue> = mutableListOf()
 }

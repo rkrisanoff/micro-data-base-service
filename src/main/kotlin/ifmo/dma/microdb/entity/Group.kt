@@ -20,10 +20,21 @@ class Group {
 
     @OneToMany(mappedBy = "group",fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var members: MutableSet<User> = HashSet()
+    @OneToMany(mappedBy = "group",fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    var queues: MutableSet<Queue> = HashSet()
 
     fun addMember(user: User) {
         members.add(user)
         user.group = this
+    }
+
+    fun addQueue(queue:Queue){
+        queues.add(queue)
+        queue.group = this
+    }
+
+    fun removeMember(user:User){
+        members.remove(user)
     }
 
 }

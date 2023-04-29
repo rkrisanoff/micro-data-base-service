@@ -25,7 +25,7 @@ class Queue {
         joinColumns = [JoinColumn(name = "queue_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")]
     )
-    val users: List<User> = emptyList()
+    val users: MutableList<User> = mutableListOf()
 
 
 }
