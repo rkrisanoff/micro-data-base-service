@@ -9,19 +9,20 @@ class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     var id: Int? = null
-
     @Column(unique = true, nullable = false)
     var login: String? = null
     @Column(nullable = false)
     var password: String? = null
     @Column(nullable = false)
-    var username: String? = null
-
+    var fullName: String? = null
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
     var group: Group? = null
-    @OneToOne(mappedBy = "admin", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    var myGroup: Group? = null
-
-   // fun createGroup(Gro)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinTable(
+        name = "queue_student",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "queue_id")]
+    )
+    val queues: List<Queue> = emptyList()
 }

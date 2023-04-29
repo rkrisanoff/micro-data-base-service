@@ -20,6 +20,12 @@ class QueueStudentId(
 class QueueStudent {
     @EmbeddedId
     var queueStudentId: QueueStudentId? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("user_id")
+    val user: User? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("queue_id")
+    val queue: Queue? = null
     @Column(name="created_at")
     @CreationTimestamp
     var createdAt: Timestamp? = null

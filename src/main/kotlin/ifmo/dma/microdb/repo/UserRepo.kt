@@ -11,4 +11,5 @@ import java.util.*
 interface UserRepo:CrudRepository<User,Long>, JpaSpecificationExecutor<User> {
     fun findUserByLogin(login:String) : Optional<User>
     fun existsUserByLogin(login:String):Boolean
+    fun findUserById(id:Long):Optional<User>
 }
