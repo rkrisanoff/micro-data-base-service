@@ -41,16 +41,15 @@
 ```json
 {
   "accountCreds": {
-    "login": "vasya",
-    "password": "qwerty"
+    "login": "vasya"
   }
 }
 ```
 
-| Circuit                       | code | payload             |
-|-------------------------------|------|:--------------------|
-| operation successful          | 0    | `{"id": 142857}`    |
-| user with login doesn't exist | 1    | `{"login":"login"}` |
+| Circuit                       | code | payload                                                              |
+|-------------------------------|------|:---------------------------------------------------------------------|
+| operation successful          | 0    | `{"id": 142857,"login":"login","password":"password",isAdmin:false}` |
+| user with login doesn't exist | 1    | `{"login":"login"}`                                                  |
 
 ## Group
 
