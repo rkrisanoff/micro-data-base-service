@@ -1,7 +1,0 @@
-{
-  "type": "object",
-  "properties": {
-    "login": {"type": "string"}
-  },
-  "required": ["login"]
-}

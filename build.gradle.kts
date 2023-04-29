@@ -27,26 +27,23 @@ repositories {
 
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	implementation("org.springframework.boot:spring-boot-starter-test")
+	implementation("org.springframework.data:spring-data-redis")
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.12.1")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
+	implementation("com.networknt:json-schema-validator:1.0.79")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	compileOnly("org.projectlombok:lombok")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.projectreactor:reactor-test")
-	implementation("com.fasterxml.jackson.core:jackson-databind")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("javax.persistence:javax.persistence-api:2.2")
-
-
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+ implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	// https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
+	implementation("jakarta.persistence:jakarta.persistence-api:3.0.0")
 
 
 }

@@ -1,4 +1,4 @@
-package ifmo.dma.microdb.repo;
+package ifmo.dma.microdb.repo
 
 import ifmo.dma.microdb.entity.Queue
 import ifmo.dma.microdb.entity.QueueStudent
@@ -7,4 +7,5 @@ import org.springframework.data.repository.CrudRepository
 
 interface QueueStudentRepository : CrudRepository<QueueStudent, QueueStudentId> {
     fun findAllByQueue(queue: Queue): List<QueueStudent>
+    fun countAllByQueue(queue:Queue) : Long
 }

@@ -1,0 +1,16 @@
+{
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "number"
+    },
+    "inviteCode": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "userId",
+    "inviteCode"
+  ]
+}

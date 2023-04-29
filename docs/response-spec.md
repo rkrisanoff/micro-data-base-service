@@ -75,12 +75,12 @@
 }
 ```
 
-| Circuit                               | code | payload                                       |
-|---------------------------------------|------|:----------------------------------------------|
-| operation successful                  | 0    | `{}`                                          |
-| user with userId doesn't exist        | 1    | `{"userId":"142857}`                          |
-| user has already own group            | 2    | `{"userId":"142857,"groupName":"cool-group"}` |
-| group with   inviteCode doesn't exist | 3    | `{"inviteCode": "cool-invite-code"}`          |
+| Circuit                             | code | payload                                       |
+|-------------------------------------|------|:----------------------------------------------|
+| operation successful                | 0    | `{}`                                          |
+| user with userId doesn't exist      | 1    | `{"userId":"142857}`                          |
+| user has already group              | 2    | `{"userId":"142857,"groupName":"cool-group"}` |
+| group with inviteCode doesn't exist | 3    | `{"inviteCode": "cool-invite-code"}`          |
 
 ### quitGroup
 
@@ -125,7 +125,6 @@
 | operation successful           | 0    | `{"groupCreds":{"groupId":12,"groupName":"cool-name","inviteCode":"somestring"}}` |
 | user with userId doesn't exist | 1    | `{"userId":"142857}`                                                              |
 | user isn't in group            | 2    | `{"userId":"142857}`                                                              |
-| user isn't admin in group      | 3    | `{"userId":"142857}`                                                              |
 
 ## Queue
 
@@ -142,7 +141,7 @@
 |--------------------------------|------|:---------------------|
 | operation successful           | 0    | `{}`                 |
 | user with userId doesn't exist | 1    | `{"userId":"142857}` |
-| user isn't in group            | 2    | `{"userId":"142857}` |
+| user isn't in group*           | 2    | `{"userId":"142857}` |
 | user isn't admin in group      | 3    | `{"userId":"142857}` |
 
 ### deleteQueue
@@ -160,7 +159,7 @@
 | user with userId doesn't exist   | 1    | `{"userId":"142857}` |
 | user isn't in group              | 2    | `{"userId":"142857}` |
 | user isn't admin in group        | 3    | `{"userId":"142857}` |
-| queue with queeuId doens't exist | 4    | `{"queueId": 228}`   |
+| queue with queueId doesn't exist | 4    | `{"queueId": 228}`   |
 
 ### enterQueue
 
@@ -171,13 +170,14 @@
 }
 ```
 
-| Circuit                                    | code | payload                          |
-|--------------------------------------------|------|:---------------------------------|
-| operation successful                       | 0    | `{}`                             |
-| user with userId doesn't exist             | 1    | `{"userId":"142857}`             |
-| user isn't in group                        | 2    | `{"userId":"142857}`             |
-| queue with queue in group Id doesn't exist | 4    | `{"queueId": 228,"groupId":227}` |
-| user already in this queue                 | 5    | `{"userId": 42,"queueId": 228}`  |
+| Circuit                                   | code | payload                                      |
+|-------------------------------------------|------|:---------------------------------------------|
+| operation successful                      | 0    | `{}`                                         |
+| user with userId doesn't exist            | 1    | `{"userId":"142857}`                         |
+| user isn't in group                       | 2    | `{"userId":"142857}`                         |
+| queue with queueId doesn't exist          | 3    | `{"queueId": 228}`                           |
+| queue is not in group of user with userId | 4    | `{userId": 42,"groupId":227,"queueId": 228}` |
+| user already in this queue                | 5    | `{"userId": 42,"queueId": 228}`              |
 
 ### quitQueue
 
@@ -188,13 +188,14 @@
 }
 ```
 
-| Circuit                                      | code | payload                                       |
-|----------------------------------------------|------|:----------------------------------------------|
-| operation successful                         | 0    | `{}`                                          |
-| user with userId doesn't exist               | 1    | `{"userId":"142857}`                          |
-| user isn't in group                          | 2    | `{"userId":"142857}`                          |
-| queue with queueId in group Id doesn't exist | 4    | `{"queueId": 228,"groupId":227}`              |
-| user isn't in queue in this queue            | 5    | `{"userId": 42,"queueId": 228,"groupId":227}` |
+| Circuit                                      | code | payload                                      |
+|----------------------------------------------|------|:---------------------------------------------|
+| operation successful                         | 0    | `{}`                                         |
+| user with userId doesn't exist               | 1    | `{"userId":"142857}`                         |
+| user isn't in group                          | 2    | `{"userId":"142857}`                         |
+| queue with queueId doesn't exist             | 3    | `{"queueId": 228}`                           |
+| queue with queueId in group Id doesn't exist | 4    | `{"queueId": 228,"groupId":227}`             |
+| user isn't in queue                          | 5    | `{"userId": 42,"queueId": 228}` |
 
 ### getQueue
 
@@ -205,12 +206,13 @@
 }
 ```
 
-| Circuit                                      | code | payload                                                                             |
-|----------------------------------------------|------|:------------------------------------------------------------------------------------|
-| operation successful                         | 0    | `{"studentsInQueueList":[{"fullName":"Artutrito Sanchez","gotInQueue":123442323}]}` |
-| user with userId doesn't exist               | 1    | `{"userId":"142857}`                                                                |
-| user isn't in group                          | 2    | `{"userId":"142857}`                                                                |
-| queue with queueId in group Id doesn't exist | 4    | `{"queueId": 228,"groupId":227}`                                                    |
+| Circuit                                   | code | payload                                                                                                      |
+|-------------------------------------------|------|:-------------------------------------------------------------------------------------------------------------|
+| operation successful                      | 0    | `{"queueId":123,"queueName":"cool-queue","users":[{"fullName":"Artutrito Sanchez","gotInQueue":123442323}]}` |
+| user with userId doesn't exist            | 1    | `{"userId":"142857}`                                                                                         |
+| user isn't in group                       | 2    | `{"userId":"142857}`                                                                                         |
+| queue with queueId doesn't exist          | 3    | `{"queueId": 228}`                                                                                           |
+| queue is not in group of user with userId | 4    | `{"queueId": 228,"groupId":227}`                                                                             |
 
 ### getQAllQueues
 

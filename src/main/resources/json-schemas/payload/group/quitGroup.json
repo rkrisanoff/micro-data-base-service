@@ -1,0 +1,12 @@
+{
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

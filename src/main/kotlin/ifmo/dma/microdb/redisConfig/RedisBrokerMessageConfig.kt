@@ -35,16 +35,17 @@ class RedisMessageBrokerConfig {
     @Bean
     fun redisMessageListenerContainer(
         redisConnectionFactory: RedisConnectionFactory,
-         messageListenerExampleAdapter:MessageListenerAdapter,
-        messageListenerExample2Adapter:MessageListenerAdapter,
-        messageListenerUserAdapter:MessageListenerAdapter
+        messageListenerUserAdapter:MessageListenerAdapter,
+        messageListenerGroupAdapter: MessageListenerAdapter,
+        messageListenerQueueAdapter: MessageListenerAdapter
 
     ): RedisMessageListenerContainer {
         val container = RedisMessageListenerContainer()
         container.setConnectionFactory(redisConnectionFactory)
         container.addMessageListener(messageListenerUserAdapter,ChannelTopic("md-user-request"))
-        container.addMessageListener(messageListenerExampleAdapter, ChannelTopic("md-example-channel-name"))
-        container.addMessageListener(messageListenerExample2Adapter, ChannelTopic("md-example2-channel-name"))
+        container.addMessageListener(messageListenerGroupAdapter,ChannelTopic("md-group-request"))
+        container.addMessageListener(messageListenerQueueAdapter,ChannelTopic("md-queue-request"))
+
         return container
     }
 

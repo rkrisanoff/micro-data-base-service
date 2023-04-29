@@ -12,13 +12,14 @@ class MessageProcessorService(
 ) {
 
     private val mapper = ObjectMapper()
-    fun push(queue: String, payload: Any) {
+
+    fun pushSuccessful(queue: String, responseCode: Int,payload: Any) {
         redisMessageService.push(
             queue, mapper.writeValueAsString(
                 MResponse(
                     true,
                     "",
-                    0,
+                    responseCode,
                     payload
                 )
             )

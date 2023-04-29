@@ -8,4 +8,5 @@ import java.util.*
 interface QueueRepo : CrudRepository<Queue, Long>{
     fun findAllByGroupId(groupId:Long):List<Queue>
     fun findQueueByGroup(group: Group):Optional<Queue>
+
 }
