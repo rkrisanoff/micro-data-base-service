@@ -40,9 +40,7 @@
 
 ```json
 {
-  "accountCreds": {
     "login": "vasya"
-  }
 }
 ```
 
