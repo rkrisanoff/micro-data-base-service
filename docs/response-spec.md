@@ -1,23 +1,56 @@
-# Спека
 
 # Table of contents
 
 1. [User](#user)
-    1. [Register](#register)
-    2. [Login](#login)
+   1. [Register](#register)
+   2. [Login](#login)
 2. [Group](#group)
-    1. [createGroup](#createGroup)
-    2. [enterGroup](#enterGroup)
-    3. [quitGroup](#quitGroup)
-    4. [deleteGroup](#deleteGroup)
-    5. [getGroup](#getGroup)
+   1. [createGroup](#createGroup)
+   2. [enterGroup](#enterGroup)
+   3. [quitGroup](#quitGroup)
+   4. [deleteGroup](#deleteGroup)
+   5. [getGroup](#getGroup)
 3. [Queue](#queue)
-    1. [createQueue](#createQueue)
-    2. [deleteQueue](#deleteQueue)
-    3. [enterQueue](#enterQueue)
-    4. [quitQueue](#quitQueue)
-    5. [getQueue](#getQueue)
-    6. [getQAllQueues](#getQAllQueues)
+   1. [createQueue](#createQueue)
+   2. [deleteQueue](#deleteQueue)
+   3. [enterQueue](#enterQueue)
+   4. [quitQueue](#quitQueue)
+   5. [getQueue](#getQueue)
+   6. [getQAllQueues](#getQAllQueues)
+
+# Specification
+
+Спека общения между микросервисами, принимающими запросы от фронта (api-gateway) и микросервиса для связи с базой данных
+
+## Protocol
+
+## Request-Format
+
+```json
+{
+    "command": "findUserByLogin",
+    "payload":{
+       ...
+    }
+}
+```
+
+## Response-Format
+
+Поле `successful` используется для того, чтобы передать на api-gateway информации об ошибке формата сообщения
+
+```json
+{
+    "successful":false,
+    "error": "error-message",
+    "error-code":1234,
+    "payload":{
+        ...
+    }
+}
+```
+
+
 
 ## User
 
