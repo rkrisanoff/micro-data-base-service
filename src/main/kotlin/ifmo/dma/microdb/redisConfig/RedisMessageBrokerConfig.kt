@@ -20,8 +20,8 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class RedisMessageBrokerConfig {
 
     @Bean
-    fun redisConnectionFactory(redisConfigProperties : RedisConfigProperties): RedisConnectionFactory {
-        return LettuceConnectionFactory(redisConfigProperties.host,redisConfigProperties.port)
+    fun redisConnectionFactory(redisConfigProperties: RedisConfigProperties): RedisConnectionFactory {
+        return LettuceConnectionFactory(redisConfigProperties.host, redisConfigProperties.port)
     }
 
     @Bean
@@ -35,18 +35,17 @@ class RedisMessageBrokerConfig {
     @Bean
     fun redisMessageListenerContainer(
         redisConnectionFactory: RedisConnectionFactory,
-        messageListenerUserAdapter:MessageListenerAdapter,
+        messageListenerUserAdapter: MessageListenerAdapter,
         messageListenerGroupAdapter: MessageListenerAdapter,
-        messageListenerQueueAdapter: MessageListenerAdapter
+        messageListenerQueueAdapter: MessageListenerAdapter,
 
     ): RedisMessageListenerContainer {
         val container = RedisMessageListenerContainer()
         container.setConnectionFactory(redisConnectionFactory)
-        container.addMessageListener(messageListenerUserAdapter,ChannelTopic("md-user-request"))
-        container.addMessageListener(messageListenerGroupAdapter,ChannelTopic("md-group-request"))
-        container.addMessageListener(messageListenerQueueAdapter,ChannelTopic("md-queue-request"))
+        container.addMessageListener(messageListenerUserAdapter, ChannelTopic("md-user-request"))
+        container.addMessageListener(messageListenerGroupAdapter, ChannelTopic("md-group-request"))
+        container.addMessageListener(messageListenerQueueAdapter, ChannelTopic("md-queue-request"))
 
         return container
     }
-
 }

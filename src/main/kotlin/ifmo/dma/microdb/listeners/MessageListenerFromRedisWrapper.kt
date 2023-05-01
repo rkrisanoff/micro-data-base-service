@@ -7,14 +7,22 @@ import ifmo.dma.microdb.services.MessageProcessorService
 import org.springframework.data.redis.connection.Message
 import org.springframework.data.redis.connection.MessageListener
 
+abstract class Gavno : MessageListener {
+    override fun onMessage(message: Message, pattern: ByteArray?) {
+        onMessage(message)
+    }
+
+    abstract fun onMessage(message: Message)
+}
+
 class MessageListenerFromRedisWrapper(
     private val listenerImpl: MessageListener,
     private val messageProcessorService: MessageProcessorService,
     private val mapper: ObjectMapper,
     private val responseQueueName: String,
     private val generalSchema: JsonSchema,
-    private val specialJsonSchemas: Map<String, JsonSchema>
-) : MessageListener by listenerImpl {
+    private val specialJsonSchemas: Map<String, JsonSchema>,
+) : MessageListener {
     override fun onMessage(message: Message, pattern: ByteArray?) {
         val content = message.body.decodeToString()
         // validate general request schema
@@ -22,20 +30,18 @@ class MessageListenerFromRedisWrapper(
         try {
             val errors = generalSchema.validate(request)
             if (errors.isNotEmpty()) {
-
                 messageProcessorService.pushError(
                     responseQueueName,
                     errors.first().message,
-                    errors.first().code.toInt()
+                    errors.first().code.toInt(),
                 )
                 return
             }
         } catch (e: JsonParseException) {
-
             messageProcessorService.pushError(
                 responseQueueName,
                 e.originalMessage,
-                -1000
+                -1000,
             )
             return
         }
@@ -46,7 +52,7 @@ class MessageListenerFromRedisWrapper(
             messageProcessorService.pushError(
                 responseQueueName,
                 "Wrong command $command on ${message.channel} channel! Try again!",
-                6
+                6,
             )
             return
         }
@@ -58,18 +64,19 @@ class MessageListenerFromRedisWrapper(
             messageProcessorService.pushError(
                 responseQueueName,
                 errors.first().message,
-                errors.first().code.toInt()
+                errors.first().code.toInt(),
             )
             return
         }
-//        try {
+        try {
             listenerImpl.onMessage(message, pattern)
-//        } catch (ex: Exception) {
-//            messageProcessorService.pushError(
-//                responseQueueName,
-//                "Could not perform operation due to an unexpected error: ${ex.message}",
-//                3
-//            )
-//        }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            messageProcessorService.pushError(
+                responseQueueName,
+                "Could not perform operation due to an unexpected error: ${ex.message}",
+                3
+            )
+        }
     }
 }

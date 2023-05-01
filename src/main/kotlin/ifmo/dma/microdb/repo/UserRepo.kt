@@ -6,10 +6,9 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
-
 @Repository
-interface UserRepo:CrudRepository<User,Long>, JpaSpecificationExecutor<User> {
-    fun findUserByLogin(login:String) : Optional<User>
-    fun existsUserByLogin(login:String):Boolean
-    fun findUserById(id:Long):Optional<User>
+interface UserRepo : CrudRepository<User, Long>, JpaSpecificationExecutor<User> {
+    fun findUserByLogin(login: String): Optional<User>
+    fun existsUserByLogin(login: String): Boolean
+    fun findUserById(id: Long): Optional<User>
 }

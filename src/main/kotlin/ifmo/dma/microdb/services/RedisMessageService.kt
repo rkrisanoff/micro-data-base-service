@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.Result.Companion.failure
+import kotlin.Result.Companion.success
 
 @Service
 class RedisMessageService(
@@ -49,7 +52,7 @@ class RedisMessageService(
         message: String,
         fromChannel: String,
         timeout: Duration,
-    ): String? {
+    ): Result<String> {
         val connection = redisConnectionFactory.connection
         val response = AtomicReference<String>()
         val latch = CountDownLatch(1)
@@ -59,17 +62,16 @@ class RedisMessageService(
         }
         connection.subscribe(messageListener, fromChannel.toByteArray())
         publish(toChannel, message)
-        try {
-            if (latch.await(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
-                connection.close()
-                return response.get()
+        connection.use {
+            return try {
+                if (latch.await(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
+                    connection.close()
+                    success(response.get())
+                } else failure(TimeoutException())
+            } catch (e: InterruptedException) {
+                failure(e)
             }
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-        } finally {
-            connection.close()
         }
-        return null
     }
 
     fun publishAndPop(

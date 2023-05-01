@@ -5,7 +5,6 @@ import ifmo.dma.microdb.dto.MResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-
 @Service
 class MessageProcessorService(
     @Autowired private val redisMessageService: RedisMessageService,
@@ -13,29 +12,31 @@ class MessageProcessorService(
 
     private val mapper = ObjectMapper()
 
-    fun pushSuccessful(queue: String, responseCode: Int,payload: Any) {
+    fun pushSuccessful(queue: String, responseCode: Int, payload: Any) {
         redisMessageService.push(
-            queue, mapper.writeValueAsString(
+            queue,
+            mapper.writeValueAsString(
                 MResponse(
                     true,
                     "",
                     responseCode,
-                    payload
-                )
-            )
+                    payload,
+                ),
+            ),
         )
     }
 
     fun pushError(queue: String, errorMessage: String, responseCode: Int) {
         redisMessageService.push(
-            queue, mapper.writeValueAsString(
+            queue,
+            mapper.writeValueAsString(
                 MResponse(
                     false,
                     errorMessage,
                     responseCode,
-                    object {}
-                )
-            )
+                    object {},
+                ),
+            ),
         )
     }
 }

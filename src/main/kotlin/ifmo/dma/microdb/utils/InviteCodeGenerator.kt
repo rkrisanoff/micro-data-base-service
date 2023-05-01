@@ -11,5 +11,4 @@ class InviteCodeGenerator {
             .map(charPool::get) // Получаем символы по индексу из пула и создаем список символов
             .joinToString("")
     }
-
 }

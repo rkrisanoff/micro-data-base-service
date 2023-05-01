@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-
-interface GroupRepo:CrudRepository<Group,Long> {
-    fun findGroupByInviteCode(inviteCode:String): Optional<Group>
-    fun findGroupByAdmin(user: User) : Optional<Group>
+interface GroupRepo : CrudRepository<Group, Long> {
+    fun findGroupByInviteCode(inviteCode: String): Optional<Group>
+    fun findGroupByAdmin(user: User): Optional<Group>
 }

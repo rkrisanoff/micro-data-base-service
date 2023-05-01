@@ -19,9 +19,8 @@ class MessageListenerGroup(
     private val messageProcessorService: MessageProcessorService,
     private val mapper: ObjectMapper,
     private val groupResponseQueue: String,
-    private val inviteCodeGen: InviteCodeGenerator
+    private val inviteCodeGen: InviteCodeGenerator,
 ) : MessageListener {
-
 
 //    fun pushWarningIfUserNotExist(payload: JsonNode) : Boolean{
 //        val userId = payload.get("groupName").asLong()
@@ -49,22 +48,25 @@ class MessageListenerGroup(
                 val user: Optional<User> = userRepo.findUserById(userId)
                 if (user.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 1,
+                        groupResponseQueue,
+                        1,
                         object {
                             val userId = userId
-                        })
+                        },
+                    )
                     return
                 }
                 val existingGroup = groupRepo.findGroupByAdmin(user.get())
                 if (existingGroup.isPresent) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 2,
+                        groupResponseQueue,
+                        2,
                         object {
                             val userId = userId
                             val groupName = existingGroup.get().name
-                        })
+                        },
+                    )
                     return
-
                 }
                 val admin = user.get()
                 val creatableGroup = Group()
@@ -74,11 +76,13 @@ class MessageListenerGroup(
                 creatableGroup.inviteCode = inviteCodeGen.generateRandomString()
                 val group = groupRepo.save(creatableGroup)
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue, 0,
+                    groupResponseQueue,
+                    0,
                     object {
                         val groupId = group.id
                         val inviteCode = group.inviteCode
-                    })
+                    },
+                )
             }
 
             "enterGroup" -> {
@@ -86,36 +90,44 @@ class MessageListenerGroup(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 1,
+                        groupResponseQueue,
+                        1,
                         object {
                             val userId = userId
-                        })
+                        },
+                    )
                     return
                 }
                 val existingGroup = groupRepo.findGroupByAdmin(maybeUser.get())
                 if (existingGroup.isPresent) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 2,
+                        groupResponseQueue,
+                        2,
                         object {
                             val userId = userId
                             val groupName = existingGroup.get().name
-                        })
+                        },
+                    )
                     return
                 }
                 val maybeNewGroup = groupRepo.findGroupByInviteCode(payload["inviteCode"].asText())
                 if (maybeNewGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 3,
+                        groupResponseQueue,
+                        3,
                         object {
                             val inviteCode = payload["inviteCode"].asText()
-                        })
+                        },
+                    )
                     return
                 }
                 maybeNewGroup.get().addMember(maybeUser.get())
                 groupRepo.save(maybeNewGroup.get())
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue, 0,
-                    object {})
+                    groupResponseQueue,
+                    0,
+                    object {},
+                )
             }
 
             "quitGroup" -> {
@@ -123,20 +135,24 @@ class MessageListenerGroup(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 1,
+                        groupResponseQueue,
+                        1,
                         object {
                             val userId = userId
-                        })
+                        },
+                    )
                     return
                 }
 
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 2,
+                        groupResponseQueue,
+                        2,
                         object {
                             val userId = userId
-                        })
+                        },
+                    )
                     return
                 }
                 println(maybeGroup.get().members)
@@ -144,8 +160,10 @@ class MessageListenerGroup(
                 maybeGroup.get().members.remove(maybeUser.get())
                 groupRepo.delete(maybeGroup.get())
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue, 0,
-                    object {})
+                    groupResponseQueue,
+                    0,
+                    object {},
+                )
             }
 
             "getGroup" -> {
@@ -153,20 +171,24 @@ class MessageListenerGroup(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 1,
+                        groupResponseQueue,
+                        1,
                         object {
                             val userId = userId
-                        })
+                        },
+                    )
                     return
                 }
 
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue, 2,
+                        groupResponseQueue,
+                        2,
                         object {
                             val userId = userId
-                        })
+                        },
+                    )
                     return
                 }
                 println(maybeGroup.get().members)
@@ -174,21 +196,23 @@ class MessageListenerGroup(
                 maybeGroup.get().members.remove(maybeUser.get())
                 groupRepo.delete(maybeGroup.get())
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue, 0,
+                    groupResponseQueue,
+                    0,
                     object {
                         val groupCreds = object {
                             val groupId = maybeGroup.get().id
                             val groupName = maybeGroup.get().name
                             val inviteCode = maybeGroup.get().inviteCode
                         }
-                    })
+                    },
+                )
             }
 
             else ->
                 messageProcessorService.pushError(
                     groupResponseQueue,
                     "Wrong command $command on ${message.channel} channel! Try again!",
-                    -1
+                    -1,
                 )
         }
     }

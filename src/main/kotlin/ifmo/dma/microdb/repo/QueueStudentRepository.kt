@@ -7,5 +7,5 @@ import org.springframework.data.repository.CrudRepository
 
 interface QueueStudentRepository : CrudRepository<QueueStudent, QueueStudentId> {
     fun findAllByQueue(queue: Queue): List<QueueStudent>
-    fun countAllByQueue(queue:Queue) : Long
+    fun countAllByQueue(queue: Queue): Long
 }

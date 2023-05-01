@@ -13,7 +13,6 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter
 @Configuration
 class MessageListenersConfiguration {
 
-
     private fun wrapInAdapter(messageListener: MessageListener): MessageListenerAdapter {
         val messageListenerAdapter = MessageListenerAdapter(messageListener)
         messageListenerAdapter.afterPropertiesSet()
@@ -26,8 +25,8 @@ class MessageListenersConfiguration {
         messageProcessorService: MessageProcessorService,
         mapper: ObjectMapper,
         @Qualifier("userResponseQueue")userResponseQueue: String,
-        generalJsonSchema:JsonSchema,
-        @Qualifier("userJsonSchemas")userJsonSchemas: Map<String,JsonSchema>
+        generalJsonSchema: JsonSchema,
+        @Qualifier("userJsonSchemas")userJsonSchemas: Map<String, JsonSchema>,
     ): MessageListenerAdapter {
         return wrapInAdapter(
             MessageListenerFromRedisWrapper(
@@ -36,18 +35,19 @@ class MessageListenersConfiguration {
                 mapper,
                 userResponseQueue,
                 generalJsonSchema,
-                userJsonSchemas
-            )
+                userJsonSchemas,
+            ),
         )
     }
+
     @Bean
     fun messageListenerGroupAdapter(
         messageListenerGroup: MessageListener,
         messageProcessorService: MessageProcessorService,
         mapper: ObjectMapper,
         @Qualifier("groupResponseQueue")groupResponseQueue: String,
-        generalJsonSchema:JsonSchema,
-        @Qualifier("groupJsonSchemas")groupJsonSchemas: Map<String,JsonSchema>
+        generalJsonSchema: JsonSchema,
+        @Qualifier("groupJsonSchemas")groupJsonSchemas: Map<String, JsonSchema>,
     ): MessageListenerAdapter {
         return wrapInAdapter(
             MessageListenerFromRedisWrapper(
@@ -56,18 +56,19 @@ class MessageListenersConfiguration {
                 mapper,
                 groupResponseQueue,
                 generalJsonSchema,
-                groupJsonSchemas
-            )
+                groupJsonSchemas,
+            ),
         )
     }
+
     @Bean
     fun messageListenerQueueAdapter(
         messageListenerGroup: MessageListener,
         messageProcessorService: MessageProcessorService,
         mapper: ObjectMapper,
         @Qualifier("queueResponseQueue")queueResponseQueue: String,
-        generalJsonSchema:JsonSchema,
-        @Qualifier("queueJsonSchemas")groupJsonSchemas: Map<String,JsonSchema>
+        generalJsonSchema: JsonSchema,
+        @Qualifier("queueJsonSchemas")groupJsonSchemas: Map<String, JsonSchema>,
     ): MessageListenerAdapter {
         return wrapInAdapter(
             MessageListenerFromRedisWrapper(
@@ -76,8 +77,8 @@ class MessageListenersConfiguration {
                 mapper,
                 queueResponseQueue,
                 generalJsonSchema,
-                groupJsonSchemas
-            )
+                groupJsonSchemas,
+            ),
         )
     }
 }
