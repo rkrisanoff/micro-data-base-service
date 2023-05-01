@@ -8,10 +8,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-
 @Service
 class RedisMessageService(
-    private val redisConnectionFactory: RedisConnectionFactory
+    private val redisConnectionFactory: RedisConnectionFactory,
 ) {
     fun publish(channel: String, message: String) {
         val connection = redisConnectionFactory.connection
@@ -23,22 +22,21 @@ class RedisMessageService(
         val connection = redisConnectionFactory.connection
         connection.commands().lPush(
             queue.toByteArray(),
-            message.toByteArray()
+            message.toByteArray(),
         )
         connection.close()
     }
 
-    fun pop(queue: String, timeout: Duration) :String{
+    fun pop(queue: String, timeout: Duration): String {
         val connection = redisConnectionFactory.connection
 
         val response = connection.commands().bLPop(
             timeout.toSeconds().toInt(),
-            queue.toByteArray()
+            queue.toByteArray(),
         )!![1]!!.decodeToString()
         connection.close()
         return response
     }
-
 
     /**
      * @param toChannel - name of channel where the message will be sent
@@ -50,7 +48,7 @@ class RedisMessageService(
         toChannel: String,
         message: String,
         fromChannel: String,
-        timeout: Duration
+        timeout: Duration,
     ): String? {
         val connection = redisConnectionFactory.connection
         val response = AtomicReference<String>()
@@ -78,17 +76,17 @@ class RedisMessageService(
         toChannel: String,
         message: String,
         fromQueue: String,
-        timeout: Duration
+        timeout: Duration,
     ): String? {
         val connection = redisConnectionFactory.connection
         connection.commands().publish(
             toChannel.toByteArray(),
-            message.toByteArray()
+            message.toByteArray(),
         )
 
         val response = connection.commands().bLPop(
             timeout.toSeconds().toInt(),
-            fromQueue.toByteArray()
+            fromQueue.toByteArray(),
         )?.get(1)?.decodeToString()
         connection.close()
         return response
