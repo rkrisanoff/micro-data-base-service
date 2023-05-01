@@ -14,7 +14,7 @@ class MessageListenerUser(
     private val userRepo: UserRepo,
     private val messageProcessorService: MessageProcessorService,
     private val mapper: ObjectMapper,
-    private val userResponseQueue: String
+    private val userResponseQueue: String,
 ) : MessageListener {
 
     override fun onMessage(message: Message, pattern: ByteArray?) {
@@ -28,13 +28,18 @@ class MessageListenerUser(
                     messageProcessorService.pushSuccessful(
                         userResponseQueue,
                         0,
-                        mapOf(Pair("user", object {
-                            val id = user.get().id
-                            val login = user.get().login
-                            val password = user.get().password
-                            val fullName = user.get().fullName
-                            val isAdmin = user.get().group?.admin?.equals(user.get())
-                        }))
+                        mapOf(
+                            Pair(
+                                "user",
+                                object {
+                                    val id = user.get().id
+                                    val login = user.get().login
+                                    val password = user.get().password
+                                    val fullName = user.get().fullName
+                                    val isAdmin = user.get().group?.admin?.equals(user.get())
+                                },
+                            ),
+                        ),
                     )
                 } else {
                     messageProcessorService.pushSuccessful(
@@ -42,7 +47,7 @@ class MessageListenerUser(
                         1,
                         object {
                             val login = payload.get("login").asText()
-                        }
+                        },
                     )
                 }
             }
@@ -63,7 +68,7 @@ class MessageListenerUser(
                         1,
                         object {
                             val login = payload["login"].asText()
-                        }
+                        },
                     )
                 } else {
                     val user = User()
@@ -72,8 +77,10 @@ class MessageListenerUser(
                     user.fullName = payload["fullName"].asText()
                     userRepo.save(user)
                     messageProcessorService.pushSuccessful(
-                        userResponseQueue, 0, object {})
-
+                        userResponseQueue,
+                        0,
+                        object {},
+                    )
                 }
             }
 
@@ -81,9 +88,8 @@ class MessageListenerUser(
                 messageProcessorService.pushError(
                     userResponseQueue,
                     "Wrong command $command on ${message.channel} channel! Try again!",
-                    -1
+                    -1,
                 )
         }
-
     }
 }
