@@ -86,7 +86,7 @@ class MessageListenerGroup(
             }
 
             "enterGroup" -> {
-                val userId = payload.get("id").asLong()
+                val userId = payload.get("userId").asLong()
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
@@ -131,7 +131,7 @@ class MessageListenerGroup(
             }
 
             "quitGroup" -> {
-                val userId = payload.get("id").asLong()
+                val userId = payload.get("userId").asLong()
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
@@ -155,8 +155,6 @@ class MessageListenerGroup(
                     )
                     return
                 }
-                println(maybeGroup.get().members)
-                println(maybeUser.get())
                 maybeGroup.get().members.remove(maybeUser.get())
                 groupRepo.delete(maybeGroup.get())
                 messageProcessorService.pushSuccessful(
@@ -167,7 +165,7 @@ class MessageListenerGroup(
             }
 
             "getGroup" -> {
-                val userId = payload.get("id").asLong()
+                val userId = payload.get("userId").asLong()
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
@@ -191,8 +189,6 @@ class MessageListenerGroup(
                     )
                     return
                 }
-                println(maybeGroup.get().members)
-                println(maybeUser.get())
                 maybeGroup.get().members.remove(maybeUser.get())
                 groupRepo.delete(maybeGroup.get())
                 messageProcessorService.pushSuccessful(
