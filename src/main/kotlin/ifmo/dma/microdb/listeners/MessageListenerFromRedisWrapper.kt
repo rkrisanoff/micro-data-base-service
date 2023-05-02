@@ -24,58 +24,65 @@ class MessageListenerFromRedisWrapper(
     private val specialJsonSchemas: Map<String, JsonSchema>,
 ) : MessageListener {
     override fun onMessage(message: Message, pattern: ByteArray?) {
-        val content = message.body.decodeToString()
-        // validate general request schema
-        val request = mapper.readTree(content)
         try {
-            val errors = generalSchema.validate(request)
-            if (errors.isNotEmpty()) {
+            val content = message.body.decodeToString()
+            // validate general request schema
+
+            try {
+                val request = mapper.readTree(content)
+
+                val generalErrors = generalSchema.validate(request)
+                if (generalErrors.isNotEmpty()) {
+                    messageProcessorService.pushError(
+                        responseQueueName,
+                        generalErrors.first().message,
+                        generalErrors.first().code.toInt(),
+                    )
+                    return
+                }
+
+                val command = request.get("command").asText()
+                val payload = request.get("payload")
+                println(specialJsonSchemas.keys.toString())
+                if (!specialJsonSchemas.contains(command)) {
+                    messageProcessorService.pushError(
+                        responseQueueName,
+                        "Wrong command $command on ${message.channel} channel! Try again!",
+                        -6,
+                    )
+                    return
+                }
+
+                // validate spec command schema
+
+                val specialErrors = specialJsonSchemas[command]!!.validate(payload)
+                if (specialErrors.isNotEmpty()) {
+                    messageProcessorService.pushError(
+                        responseQueueName,
+                        specialErrors.first().message,
+                        specialErrors.first().code.toInt(),
+                    )
+                    return
+                }
+
+                listenerImpl.onMessage(message, pattern)
+
+            } catch (e: JsonParseException) {
+                e.printStackTrace()
                 messageProcessorService.pushError(
                     responseQueueName,
-                    errors.first().message,
-                    errors.first().code.toInt(),
+                    e.originalMessage,
+                    -1000,
                 )
                 return
             }
-        } catch (e: JsonParseException) {
-            messageProcessorService.pushError(
-                responseQueueName,
-                e.originalMessage,
-                -1000,
-            )
-            return
-        }
-        val command = request.get("command").asText()
-        val payload = request.get("payload")
-        println(specialJsonSchemas.keys.toString())
-        if (!specialJsonSchemas.contains(command)) {
-            messageProcessorService.pushError(
-                responseQueueName,
-                "Wrong command $command on ${message.channel} channel! Try again!",
-                6,
-            )
-            return
-        }
 
-        // validate spec command schema
-
-        val errors = specialJsonSchemas[command]!!.validate(payload)
-        if (errors.isNotEmpty()) {
-            messageProcessorService.pushError(
-                responseQueueName,
-                errors.first().message,
-                errors.first().code.toInt(),
-            )
-            return
-        }
-        try {
-            listenerImpl.onMessage(message, pattern)
         } catch (ex: Exception) {
-            ex.printStackTrace()
+
             messageProcessorService.pushError(
                 responseQueueName,
                 "Could not perform operation due to an unexpected error: ${ex.message}",
-                3
+                -9
             )
         }
     }

@@ -77,10 +77,10 @@
 }
 ```
 
-| Circuit                       | code | payload                                                              |
-|-------------------------------|------|:---------------------------------------------------------------------|
-| operation successful          | 0    | `{"id": 142857,"login":"login","password":"password",isAdmin:false}` |
-| user with login doesn't exist | 1    | `{"login":"login"}`                                                  |
+| Circuit                       | code | payload                                                                                     |
+|-------------------------------|------|:--------------------------------------------------------------------------------------------|
+| operation successful          | 0    | `{"id": 142857,"login":"login","fullName":"cool-name","password":"password",isAdmin:false}` |
+| user with login doesn't exist | 1    | `{"login":"login"}`                                                                         |
 
 ## Group
 
@@ -153,11 +153,11 @@
 }
 ```
 
-| Circuit                        | code | payload                                                                           |
-|--------------------------------|------|:----------------------------------------------------------------------------------|
-| operation successful           | 0    | `{"groupCreds":{"groupId":12,"groupName":"cool-name","inviteCode":"somestring"}}` |
-| user with userId doesn't exist | 1    | `{"userId":"142857}`                                                              |
-| user isn't in group            | 2    | `{"userId":"142857}`                                                              |
+| Circuit                        | code | payload                                                                          |
+|--------------------------------|------|:---------------------------------------------------------------------------------|
+| operation successful           | 0    | `{"groupId":12,"groupName":"cool-name","inviteCode":"somestring"}`               |
+| user with userId doesn't exist | 1    | `{"userId":"142857}`                                                             |
+| user isn't in group            | 2    | `{"userId":"142857}`                                                             |
 
 ## Queue
 

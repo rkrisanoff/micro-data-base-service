@@ -199,11 +199,9 @@ class MessageListenerGroup(
                     groupResponseQueue,
                     0,
                     object {
-                        val groupCreds = object {
-                            val groupId = maybeGroup.get().id
-                            val groupName = maybeGroup.get().name
-                            val inviteCode = maybeGroup.get().inviteCode
-                        }
+                        val groupId = maybeGroup.get().id
+                        val groupName = maybeGroup.get().name
+                        val inviteCode = maybeGroup.get().inviteCode
                     },
                 )
             }

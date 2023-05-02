@@ -28,18 +28,13 @@ class MessageListenerUser(
                     messageProcessorService.pushSuccessful(
                         userResponseQueue,
                         0,
-                        mapOf(
-                            Pair(
-                                "user",
-                                object {
-                                    val id = user.get().id
-                                    val login = user.get().login
-                                    val password = user.get().password
-                                    val fullName = user.get().fullName
-                                    val isAdmin = user.get().group?.admin?.equals(user.get())
-                                },
-                            ),
-                        ),
+                        object {
+                            val id = user.get().id
+                            val login = user.get().login
+                            val password = user.get().password
+                            val fullName = user.get().fullName
+                            val isAdmin = user.get().equals(user.get().group?.admin?.equals(user.get()))
+                        },
                     )
                 } else {
                     messageProcessorService.pushSuccessful(
@@ -51,15 +46,7 @@ class MessageListenerUser(
                     )
                 }
             }
-//
-//            "save" -> {
-//                val user = User()
-//                user.login = payload.get("user")["login"].asText()
-//                user.password = payload.get("user")["password"].asText()
-//                user.fullName = payload.get("user")["fullName"].asText()
-//                userRepo.save(user)
-//                messageProcessorService.push(userResponseQueue, user)
-//            }
+
 
             "register" -> {
                 if (userRepo.existsUserByLogin(payload["login"].asText())) {
