@@ -70,10 +70,11 @@ class MessageListenerGroup(
                 }
                 val admin = user.get()
                 val creatableGroup = Group()
-                creatableGroup.name = payload.get("string").asText()
+                creatableGroup.name = payload.get("groupName").asText()
                 creatableGroup.admin = admin
                 creatableGroup.members = mutableSetOf(admin)
                 creatableGroup.inviteCode = inviteCodeGen.generateRandomString()
+                admin.group = creatableGroup
                 val group = groupRepo.save(creatableGroup)
                 messageProcessorService.pushSuccessful(
                     groupResponseQueue,
