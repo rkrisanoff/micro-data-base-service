@@ -87,8 +87,8 @@ class MessagingConfig {
                 jsonSchemaReaderFromResources.readJsonSchemaFromResource("payload/queue/getQueue.json"),
             ),
             Pair(
-                "getQAllQueues",
-                jsonSchemaReaderFromResources.readJsonSchemaFromResource("payload/queue/getQAllQueues.json"),
+                "getAllQueues",
+                jsonSchemaReaderFromResources.readJsonSchemaFromResource("payload/queue/getAllQueues.json"),
             ),
         )
     }

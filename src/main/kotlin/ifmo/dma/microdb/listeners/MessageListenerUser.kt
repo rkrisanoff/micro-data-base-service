@@ -74,7 +74,7 @@ class MessageListenerUser(
             else ->
                 messageProcessorService.pushError(
                     userResponseQueue,
-                    "Wrong command $command on ${message.channel} channel! Try again!",
+                    "[User] Wrong command $command on ${message.channel.decodeToString()} channel! Try again!",
                     -1,
                 )
         }

@@ -14,11 +14,12 @@ class MessageProcessorService(
     private val mapper = ObjectMapper()
     private val logger = KotlinLogging.logger {}
 
-    fun pushSuccessful(queue: String, responseCode: Int, payload: Any) {
-        logger.info { "\nResponse with responseCode $responseCode  and payload:\n${mapper.writeValueAsString(payload)}\n will be sent to the $queue" }
+    fun pushSuccessful(queueName: String, responseCode: Int, payload: Any) {
+        logger.info { "\nResponse with responseCode $responseCode  and payload:" +
+                "\n${mapper.writeValueAsString(payload)}\n will be sent to the $queueName" }
 
         redisMessageService.push(
-            queue,
+            queueName,
             mapper.writeValueAsString(
                 MResponse(
                     true,
@@ -31,7 +32,8 @@ class MessageProcessorService(
     }
 
     fun pushError(queue: String, errorMessage: String, responseCode: Int) {
-        logger.error { "\nMessage of critical error with $responseCode will be sent to the $queue" }
+        logger.error { "\nMessage of critical error with $responseCode will be sent to the $queue\n$errorMessage\n" }
+
 
         redisMessageService.push(
             queue,

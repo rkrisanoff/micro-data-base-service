@@ -20,11 +20,11 @@ class Queue {
     @CreationTimestamp
     var createdAt: Timestamp? = null
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.EAGER, cascade = [/*CascadeType.PERSIST,*/ CascadeType.MERGE])
     @JoinColumn(name = "group_id", referencedColumnName = "id", nullable = false)
     var group: Group? = null
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [/*CascadeType.PERSIST,*/ CascadeType.MERGE])
     @JoinTable(
         name = "queue_student",
         joinColumns = [JoinColumn(name = "queue_id")],

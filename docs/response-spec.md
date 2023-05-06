@@ -253,7 +253,7 @@
 | queue with queueId doesn't exist          | 3    | `{"queueId": 228}`                                                                                           |
 | queue is not in group of user with userId | 4    | `{"queueId": 228,"groupId":227}`                                                                             |
 
-### getQAllQueues
+### getAllQueues
 
 ```json
 {

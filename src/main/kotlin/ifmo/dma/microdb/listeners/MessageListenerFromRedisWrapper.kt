@@ -22,14 +22,17 @@ class MessageListenerFromRedisWrapper(
     override fun onMessage(message: Message, pattern: ByteArray?) {
         try {
             val content = message.body.decodeToString()
-            logger.info { "\nChannel ${message.channel} received the message:\n ${message.body.decodeToString()}\n" }
+            logger.info { "Channel ${message.channel.decodeToString()} received the message: `${message.body.decodeToString()}`" }
             // validate general request schema
+
 
             try {
                 val request = mapper.readTree(content)
 
                 val generalErrors = generalSchema.validate(request)
                 if (generalErrors.isNotEmpty()) {
+                    logger.warn { generalErrors.first().message }
+
                     messageProcessorService.pushError(
                         responseQueueName,
                         generalErrors.first().message,
@@ -40,7 +43,9 @@ class MessageListenerFromRedisWrapper(
 
                 val command = request.get("command").asText()
                 val payload = request.get("payload")
+
                 if (!specialJsonSchemas.contains(command)) {
+                    logger.warn { "Wrong command $command on ${message.channel} channel! Try again!" }
                     messageProcessorService.pushError(
                         responseQueueName,
                         "Wrong command $command on ${message.channel} channel! Try again!",
@@ -52,11 +57,13 @@ class MessageListenerFromRedisWrapper(
                 // validate spec command schema
 
                 val specialErrors = specialJsonSchemas[command]!!.validate(payload)
+                println(specialJsonSchemas[command]!!.schemaNode.asText())
                 if (specialErrors.isNotEmpty()) {
+                    logger.warn { specialErrors.first().message }
                     messageProcessorService.pushError(
                         responseQueueName,
                         specialErrors.first().message,
-                        specialErrors.first().code.toInt(),
+                        -specialErrors.first().code.toInt(),
                     )
                     return
                 }

@@ -7,6 +7,7 @@ import ifmo.dma.microdb.repo.GroupRepo
 import ifmo.dma.microdb.repo.UserRepo
 import ifmo.dma.microdb.services.MessageProcessorService
 import ifmo.dma.microdb.utils.InviteCodeGenerator
+import mu.KotlinLogging
 import org.springframework.data.redis.connection.Message
 import org.springframework.data.redis.connection.MessageListener
 import org.springframework.stereotype.Component
@@ -35,6 +36,7 @@ class MessageListenerGroup(
 //        }
 //        return true
 //    }
+private val logger = KotlinLogging.logger {}
 
     override fun onMessage(message: Message, bytes: ByteArray?) {
         val content = message.body.decodeToString()
@@ -275,7 +277,7 @@ class MessageListenerGroup(
             else ->
                 messageProcessorService.pushError(
                     groupResponseQueue,
-                    "Wrong command $command on ${message.channel} channel! Try again!",
+                    "[Group] Wrong command $command on ${message.channel.decodeToString()} channel! Try again!",
                     -1,
                 )
         }

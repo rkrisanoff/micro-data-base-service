@@ -23,8 +23,11 @@ class MessageListenerQueue(
     private val queueStudentIdRepo: QueueStudentRepository,
     private val messageProcessorService: MessageProcessorService,
     private val mapper: ObjectMapper,
-    private val groupResponseQueue: String,
-) : MessageListener {
+    private val queueResponseQueue: String,
+
+    ) : MessageListener {
+
+
     override fun onMessage(message: Message, bytes: ByteArray?) {
         val content = message.body.decodeToString()
         val request = mapper.readTree(content)
@@ -37,7 +40,7 @@ class MessageListenerQueue(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         1,
                         object {
                             val userId = userId
@@ -48,7 +51,7 @@ class MessageListenerQueue(
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         2,
                         object {
                             val userId = userId
@@ -56,10 +59,10 @@ class MessageListenerQueue(
                     )
                     return
                 }
-                val maybeManagedGroup = groupRepo.findGroupByAdmin(maybeUser.get())
+                val maybeManagedGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeManagedGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         3,
                         object {
                             val userId = userId
@@ -72,8 +75,9 @@ class MessageListenerQueue(
                 queue.group = maybeManagedGroup.get()
                 queue.name = payload.get("queueName").asText()
                 queueRepo.save(queue)
+                println(queueResponseQueue)
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue,
+                    queueResponseQueue,
                     0,
                     object {},
                 )
@@ -84,7 +88,7 @@ class MessageListenerQueue(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         1,
                         object {
                             val userId = userId
@@ -95,7 +99,7 @@ class MessageListenerQueue(
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         2,
                         object {
                             val userId = userId
@@ -106,7 +110,7 @@ class MessageListenerQueue(
                 val maybeManagedGroup = groupRepo.findGroupByAdmin(maybeUser.get())
                 if (maybeManagedGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         3,
                         object {
                             val userId = userId
@@ -117,7 +121,7 @@ class MessageListenerQueue(
                 val maybeQueue = queueRepo.findById(payload.get("queueId").asLong())
                 if (maybeQueue.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         4,
                         object {
                             val queueId = payload.get("queueId").asLong()
@@ -127,7 +131,7 @@ class MessageListenerQueue(
                 }
                 queueRepo.delete(maybeQueue.get())
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue,
+                    queueResponseQueue,
                     0,
                     object {},
                 )
@@ -138,7 +142,7 @@ class MessageListenerQueue(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         1,
                         object {
                             val userId = userId
@@ -149,7 +153,7 @@ class MessageListenerQueue(
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         2,
                         object {
                             val userId = userId
@@ -161,7 +165,7 @@ class MessageListenerQueue(
                 val maybeQueue = queueRepo.findById(payload.get("queueId").asLong())
                 if (maybeQueue.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         3,
                         object {
                             val queueId = payload.get("queueId").asLong()
@@ -169,9 +173,9 @@ class MessageListenerQueue(
                     )
                     return
                 }
-                if (maybeQueue.get().group?.equals(maybeUser.get().group) == false) {
+                if (maybeQueue.get().group!!.id != maybeUser.get().group!!.id) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         4,
                         object {
                             val userId = userId
@@ -187,7 +191,7 @@ class MessageListenerQueue(
                 val queueStudent = QueueStudent()
                 if (queueStudentIdRepo.existsById(queueStudentId)) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         5,
                         object {
                             val userId = userId
@@ -199,7 +203,7 @@ class MessageListenerQueue(
                 queueStudent.queueStudentId = queueStudentId
                 queueStudentIdRepo.save(queueStudent)
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue,
+                    queueResponseQueue,
                     0,
                     object {},
                 )
@@ -210,7 +214,7 @@ class MessageListenerQueue(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         1,
                         object {
                             val userId = userId
@@ -221,7 +225,7 @@ class MessageListenerQueue(
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         2,
                         object {
                             val userId = userId
@@ -233,7 +237,7 @@ class MessageListenerQueue(
                 val maybeQueue = queueRepo.findById(payload.get("queueId").asLong())
                 if (maybeQueue.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         3,
                         object {
                             val queueId = payload.get("queueId").asLong()
@@ -241,20 +245,21 @@ class MessageListenerQueue(
                     )
                     return
                 }
-                if (maybeQueue.get().group?.equals(maybeUser.get().group) == false) {
+                if (maybeQueue.get().group!!.id != maybeUser.get().group!!.id) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         4,
                         object {
+                            val userId = userId
                             val queueId = payload.get("queueId").asLong()
                             val groupId = maybeGroup.get().id
                         },
                     )
                     return
                 }
-                if (!maybeQueue.get().users.contains(maybeUser.get())) {
+                if (!maybeQueue.get().users.stream().anyMatch { user -> user.id == maybeUser.get().id }) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         5,
                         object {
                             val userId = userId
@@ -263,11 +268,12 @@ class MessageListenerQueue(
                     )
                     return
                 }
-
-                maybeQueue.get().users.remove(maybeUser.get())
-
+                val queueStudentId = QueueStudentId()
+                queueStudentId.user = maybeUser.get()
+                queueStudentId.queue = maybeQueue.get()
+                queueStudentIdRepo.delete(queueStudentIdRepo.findById(queueStudentId).get())
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue,
+                    queueResponseQueue,
                     0,
                     object {
                     },
@@ -279,7 +285,7 @@ class MessageListenerQueue(
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         1,
                         object {
                             val userId = userId
@@ -290,7 +296,7 @@ class MessageListenerQueue(
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         2,
                         object {
                             val userId = userId
@@ -302,7 +308,7 @@ class MessageListenerQueue(
                 val maybeQueue = queueRepo.findById(payload.get("queueId").asLong())
                 if (maybeQueue.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         3,
                         object {
                             val queueId = payload.get("queueId").asLong()
@@ -310,9 +316,9 @@ class MessageListenerQueue(
                     )
                     return
                 }
-                if (maybeQueue.get().group?.equals(maybeUser.get().group) == false) {
+                if (maybeQueue.get().group!!.id != maybeUser.get().group!!.id) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         4,
                         object {
                             val userId = userId
@@ -322,34 +328,30 @@ class MessageListenerQueue(
                     )
                     return
                 }
-                maybeQueue.get()
-                val studentsList = queueStudentIdRepo.findAllByQueue(maybeQueue.get())
-
+                val studentsList = queueStudentIdRepo.findAllByQueue(maybeQueue.get()).map { standing ->
+                    object {
+                        val fullName = standing.user?.fullName
+                        val id = standing.user?.id
+                        val gotInQueue = standing.createdAt
+                    }
+                }
                 messageProcessorService.pushSuccessful(
-                    groupResponseQueue,
+                    queueResponseQueue,
                     0,
                     object {
                         val queueId = maybeQueue.get().id
                         val queueName = maybeQueue.get().name
-                        val users = studentsList.map { standing ->
-                            {
-                                object {
-                                    val fullName = standing.user?.fullName
-                                    val id = standing.user?.id
-                                    val gotInQueue = standing.createdAt
-                                }
-                            }
-                        }
+                        val users = studentsList
                     },
                 )
             }
 
-            "getQAllQueues" -> {
+            "getAllQueues" -> {
                 val userId = payload.get("userId").asLong()
                 val maybeUser: Optional<User> = userRepo.findUserById(userId)
                 if (maybeUser.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         1,
                         object {
                             val userId = userId
@@ -357,10 +359,11 @@ class MessageListenerQueue(
                     )
                     return
                 }
+
                 val maybeGroup = Optional.ofNullable(maybeUser.get().group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         2,
                         object {
                             val userId = userId
@@ -368,35 +371,31 @@ class MessageListenerQueue(
                     )
                     return
                 }
-                if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
-                        groupResponseQueue,
+                        queueResponseQueue,
                         0,
                         object {
                             val queueList = maybeGroup.get().queues.map { queue ->
-                                {
-                                    {
-                                        object {
-                                            val id = queue.id
-                                            val queueName = queue.name
-                                            val recordsNumber = queueStudentIdRepo.countAllByQueue(queue)
-                                        }
-                                    }
+
+                                object {
+                                    val id = queue.id
+                                    val queueName = queue.name
+                                    val recordsNumber = queueStudentIdRepo.countAllByQueue(queue)
                                 }
+
                             }
                         },
                     )
                     return
-                }
-                maybeGroup.get().queues
             }
 
-            else ->
+            else -> {
                 messageProcessorService.pushError(
-                    groupResponseQueue,
-                    "Wrong command $command on ${message.channel} channel! Try again!",
+                    queueResponseQueue,
+                    "[Queue] Wrong command $command on ${message.channel.decodeToString()} channel! Try again!",
                     -1,
                 )
+            }
         }
     }
 }

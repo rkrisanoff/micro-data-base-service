@@ -63,21 +63,21 @@ class MessageListenersConfiguration {
 
     @Bean
     fun messageListenerQueueAdapter(
-        messageListenerGroup: MessageListener,
+        messageListenerQueue: MessageListener,
         messageProcessorService: MessageProcessorService,
         mapper: ObjectMapper,
         @Qualifier("queueResponseQueue")queueResponseQueue: String,
         generalJsonSchema: JsonSchema,
-        @Qualifier("queueJsonSchemas")groupJsonSchemas: Map<String, JsonSchema>,
+        @Qualifier("queueJsonSchemas")queueJsonSchemas: Map<String, JsonSchema>,
     ): MessageListenerAdapter {
         return wrapInAdapter(
             MessageListenerFromRedisWrapper(
-                messageListenerGroup,
+                messageListenerQueue,
                 messageProcessorService,
                 mapper,
                 queueResponseQueue,
                 generalJsonSchema,
-                groupJsonSchemas,
+                queueJsonSchemas,
             ),
         )
     }
