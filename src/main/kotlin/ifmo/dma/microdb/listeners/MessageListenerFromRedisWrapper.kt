@@ -4,16 +4,9 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchema
 import ifmo.dma.microdb.services.MessageProcessorService
+import mu.KotlinLogging
 import org.springframework.data.redis.connection.Message
 import org.springframework.data.redis.connection.MessageListener
-
-abstract class Gavno : MessageListener {
-    override fun onMessage(message: Message, pattern: ByteArray?) {
-        onMessage(message)
-    }
-
-    abstract fun onMessage(message: Message)
-}
 
 class MessageListenerFromRedisWrapper(
     private val listenerImpl: MessageListener,
@@ -23,9 +16,13 @@ class MessageListenerFromRedisWrapper(
     private val generalSchema: JsonSchema,
     private val specialJsonSchemas: Map<String, JsonSchema>,
 ) : MessageListener {
+
+    private val logger = KotlinLogging.logger {}
+
     override fun onMessage(message: Message, pattern: ByteArray?) {
         try {
             val content = message.body.decodeToString()
+            logger.info { "\nChannel ${message.channel} received the message:\n ${message.body.decodeToString()}\n" }
             // validate general request schema
 
             try {
@@ -43,7 +40,6 @@ class MessageListenerFromRedisWrapper(
 
                 val command = request.get("command").asText()
                 val payload = request.get("payload")
-                println(specialJsonSchemas.keys.toString())
                 if (!specialJsonSchemas.contains(command)) {
                     messageProcessorService.pushError(
                         responseQueueName,
