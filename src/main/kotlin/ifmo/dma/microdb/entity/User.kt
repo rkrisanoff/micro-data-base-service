@@ -4,6 +4,7 @@ package ifmo.dma.microdb.entity
 import jakarta.persistence.*
 import jakarta.persistence.CascadeType.MERGE
 import jakarta.persistence.CascadeType.PERSIST
+import jakarta.persistence.FetchType.EAGER
 import jakarta.persistence.FetchType.LAZY
 import jakarta.persistence.GenerationType.IDENTITY
 
@@ -24,7 +25,7 @@ class User {
     @Column(nullable = false)
     var fullName: String? = null
 
-    @ManyToOne(fetch = LAZY, cascade = [PERSIST, MERGE])
+    @ManyToOne(fetch = EAGER, cascade = [PERSIST, MERGE])
     @JoinColumn(name = "group_id", referencedColumnName = "id")
     var group: Group? = null
 

@@ -1,22 +1,27 @@
 
 # Table of contents
 
-1. [User](#user)
-   1. [Register](#register)
-   2. [Login](#login)
-2. [Group](#group)
-   1. [createGroup](#createGroup)
-   2. [enterGroup](#enterGroup)
-   3. [quitGroup](#quitGroup)
-   4. [deleteGroup](#deleteGroup)
-   5. [getGroup](#getGroup)
-3. [Queue](#queue)
-   1. [createQueue](#createQueue)
-   2. [deleteQueue](#deleteQueue)
-   3. [enterQueue](#enterQueue)
-   4. [quitQueue](#quitQueue)
-   5. [getQueue](#getQueue)
-   6. [getQAllQueues](#getQAllQueues)
+- [Table of contents](#table-of-contents)
+- [Specification](#specification)
+  - [Protocol](#protocol)
+  - [Request-Format](#request-format)
+  - [Response-Format](#response-format)
+  - [User](#user)
+    - [register](#register)
+    - [login](#login)
+  - [Group](#group)
+    - [createGroup](#creategroup)
+    - [enterGroup](#entergroup)
+    - [quitGroup](#quitgroup)
+    - [deleteGroup](#deletegroup)
+    - [getGroup](#getgroup)
+  - [Queue](#queue)
+    - [createQueue](#createqueue)
+    - [deleteQueue](#deletequeue)
+    - [enterQueue](#enterqueue)
+    - [quitQueue](#quitqueue)
+    - [getQueue](#getqueue)
+    - [getQAllQueues](#getqallqueues)
 
 # Specification
 
@@ -123,11 +128,12 @@
 }
 ```
 
-| Circuit                        | code | payload              |
-|--------------------------------|------|:---------------------|
-| operation successful           | 0    | `{}`                 |
-| user with userId doesn't exist | 1    | `{"userId":"142857}` |
-| user isn't in group            | 2    | `{"userId":"142857}` |
+| Circuit                                                       | code | payload                          |
+|---------------------------------------------------------------|------|:---------------------------------|
+| operation successful                                          | 0    | `{}`                             |
+| user with userId doesn't exist                                | 1    | `{"userId":"142857}`             |
+| user is not in group                                          | 2    | `{"userId":"142857}`             |
+| user is admin in the group. Use `deleteGroup` request instead | 2    | `{"userId":"142857,"groupId":1}` |
 
 ### deleteGroup
 
@@ -138,12 +144,12 @@
 
 ```
 
-| Circuit                        | code | payload              |
-|--------------------------------|------|:---------------------|
-| operation successful           | 0    | `{}`                 |
-| user with userId doesn't exist | 1    | `{"userId":"142857}` |
-| user isn't in group            | 2    | `{"userId":"142857}` |
-| user isn't admin in group      | 3    | `{"userId":"142857}` |
+| Circuit                        | code | payload                                      |
+|--------------------------------|------|:---------------------------------------------|
+| operation successful           | 0    | `{}`                                         |
+| user with userId doesn't exist | 1    | `{"userId":"142857}`                         |
+| user isn't in group            | 2    | `{"userId":"142857}`                         |
+| user isn't admin in group      | 3    | `{"userId":"142857,"groupId":1,"adminId":1}` |
 
 ### getGroup
 

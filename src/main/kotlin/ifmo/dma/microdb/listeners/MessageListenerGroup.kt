@@ -76,6 +76,7 @@ class MessageListenerGroup(
                 creatableGroup.inviteCode = inviteCodeGen.generateRandomString()
                 admin.group = creatableGroup
                 val group = groupRepo.save(creatableGroup)
+                userRepo.save(admin)
                 messageProcessorService.pushSuccessful(
                     groupResponseQueue,
                     0,
@@ -99,7 +100,7 @@ class MessageListenerGroup(
                     )
                     return
                 }
-                val existingGroup = groupRepo.findGroupByAdmin(maybeUser.get())
+                val existingGroup = Optional.ofNullable(maybeUser.get().group)
                 if (existingGroup.isPresent) {
                     messageProcessorService.pushSuccessful(
                         groupResponseQueue,
@@ -122,8 +123,10 @@ class MessageListenerGroup(
                     )
                     return
                 }
-                maybeNewGroup.get().addMember(maybeUser.get())
-                groupRepo.save(maybeNewGroup.get())
+                val group = maybeNewGroup.get()
+                group.addMember(maybeUser.get())
+
+                groupRepo.save(group)
                 messageProcessorService.pushSuccessful(
                     groupResponseQueue,
                     0,
@@ -144,8 +147,9 @@ class MessageListenerGroup(
                     )
                     return
                 }
+                val user = maybeUser.get()
 
-                val maybeGroup = Optional.ofNullable(maybeUser.get().group)
+                val maybeGroup = Optional.ofNullable(user.group)
                 if (maybeGroup.isEmpty) {
                     messageProcessorService.pushSuccessful(
                         groupResponseQueue,
@@ -156,8 +160,73 @@ class MessageListenerGroup(
                     )
                     return
                 }
-                maybeGroup.get().members.remove(maybeUser.get())
-                groupRepo.delete(maybeGroup.get())
+                val group = maybeGroup.get()
+
+                if (user.id == group.admin?.id) {
+                    messageProcessorService.pushSuccessful(
+                        groupResponseQueue,
+                        3,
+                        object {
+                            val userId = userId
+                            val groupId = group.id
+                        },
+                    )
+                    return
+                }
+                group.members.remove(user)
+                user.group = null
+                userRepo.save(user)
+                groupRepo.save(group)
+                messageProcessorService.pushSuccessful(
+                    groupResponseQueue,
+                    0,
+                    object {},
+                )
+            }
+
+            "deleteGroup" -> {
+                val userId = payload.get("userId").asLong()
+                val maybeUser: Optional<User> = userRepo.findUserById(userId)
+                if (maybeUser.isEmpty) {
+                    messageProcessorService.pushSuccessful(
+                        groupResponseQueue,
+                        1,
+                        object {
+                            val userId = userId
+                        },
+                    )
+                    return
+                }
+                val user = maybeUser.get()
+
+                val maybeGroup = Optional.ofNullable(user.group)
+                if (maybeGroup.isEmpty) {
+                    messageProcessorService.pushSuccessful(
+                        groupResponseQueue,
+                        2,
+                        object {
+                            val userId = userId
+                        },
+                    )
+                    return
+                }
+                val group = maybeGroup.get()
+
+                if (group.admin!! != user) {
+                    messageProcessorService.pushSuccessful(
+                        groupResponseQueue,
+                        3,
+                        object {
+                            val userId = userId
+                            val adminId = group.admin!!.id
+                            val groupId = group.id
+
+                        },
+                    )
+                    return
+                }
+
+                groupRepo.delete(group)
                 messageProcessorService.pushSuccessful(
                     groupResponseQueue,
                     0,

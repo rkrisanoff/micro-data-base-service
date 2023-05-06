@@ -77,11 +77,11 @@ class MessageListenerFromRedisWrapper(
                 return
             }
 
-        } catch (ex: Exception) {
-
+        } catch (e: Exception) {
+            e.printStackTrace()
             messageProcessorService.pushError(
                 responseQueueName,
-                "Could not perform operation due to an unexpected error: ${ex.message}",
+                "Could not perform operation due to an unexpected error: ${e.message}",
                 -9
             )
         }

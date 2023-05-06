@@ -67,6 +67,7 @@ class MessageListenerQueue(
                     )
                     return
                 }
+
                 val queue = Queue()
                 queue.group = maybeManagedGroup.get()
                 queue.name = payload.get("queueName").asText()

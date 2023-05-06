@@ -14,17 +14,17 @@ class Group {
     @Column(name = "name", nullable = false)
     var name: String? = null
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @OneToOne(fetch = FetchType.LAZY, cascade = [/*CascadeType.ALL*/CascadeType.MERGE])
     @JoinColumn(name = "admin_id", referencedColumnName = "id", nullable = false, unique = true)
     var admin: User? = null
 
     @Column(name = "invite_code", unique = true, nullable = false)
     var inviteCode: String? = null
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = [/*CascadeType.PERSIST,*/ CascadeType.MERGE])
     var members: MutableSet<User> = HashSet()
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = [/*CascadeType.PERSIST, */CascadeType.MERGE])
     var queues: MutableSet<Queue> = HashSet()
 
     fun addMember(user: User) {
