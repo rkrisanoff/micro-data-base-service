@@ -47,8 +47,8 @@
 ```json
 {
     "successful":false,
-    "error": "error-message",
-    "error-code":1234,
+    "errorMessage": "error-message",
+    "responseCode":1234,
     "payload":{
         ...
     }
