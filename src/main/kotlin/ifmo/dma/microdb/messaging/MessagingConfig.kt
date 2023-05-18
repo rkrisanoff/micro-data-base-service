@@ -60,6 +60,10 @@ class MessagingConfig {
                 "getGroup",
                 jsonSchemaReaderFromResources.readJsonSchemaFromResource("payload/group/getGroup.json"),
             ),
+            Pair(
+                "getGroupList",
+                jsonSchemaReaderFromResources.readJsonSchemaFromResource("payload/group/getGroup.json"),
+            ),
         )
     }
 

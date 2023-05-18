@@ -15,6 +15,7 @@
     - [quitGroup](#quitgroup)
     - [deleteGroup](#deletegroup)
     - [getGroup](#getgroup)
+    - [getGroupList](#getgrouplist)
   - [Queue](#queue)
     - [createQueue](#createqueue)
     - [deleteQueue](#deletequeue)
@@ -164,6 +165,21 @@
 | operation successful           | 0    | `{"groupId":12,"groupName":"cool-name","inviteCode":"somestring"}`               |
 | user with userId doesn't exist | 1    | `{"userId":"142857}`                                                             |
 | user isn't in group            | 2    | `{"userId":"142857}`                                                             |
+
+
+### getGroupList
+
+```json
+{
+  "userId": 42
+}
+```
+
+| Circuit                        | code | payload                                                                   |
+|--------------------------------|------|:--------------------------------------------------------------------------|
+| operation successful           | 0    | `{"userList"[{"userId": 142857,"login":"login","fullName":"cool-name"}]}` |
+| user with userId doesn't exist | 1    | `{"userId":"142857}`                                                      |
+| user isn't in group            | 2    | `{"userId":"142857}`                                                      |
 
 ## Queue
 

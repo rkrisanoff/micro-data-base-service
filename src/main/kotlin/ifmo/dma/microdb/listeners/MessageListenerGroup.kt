@@ -273,6 +273,48 @@ private val logger = KotlinLogging.logger {}
                     },
                 )
             }
+            "getGroupList" -> {
+                val userId = payload.get("userId").asLong()
+                val maybeUser: Optional<User> = userRepo.findUserById(userId)
+                if (maybeUser.isEmpty) {
+                    messageProcessorService.pushSuccessful(
+                        groupResponseQueue,
+                        1,
+                        object {
+                            val userId = userId
+                        },
+                    )
+                    return
+                }
+
+                val maybeGroup = Optional.ofNullable(maybeUser.get().group)
+                if (maybeGroup.isEmpty) {
+                    messageProcessorService.pushSuccessful(
+                        groupResponseQueue,
+                        2,
+                        object {
+                            val userId = userId
+                        },
+                    )
+                    return
+                }
+                maybeGroup.get().members.remove(maybeUser.get())
+                groupRepo.delete(maybeGroup.get())
+                messageProcessorService.pushSuccessful(
+                    groupResponseQueue,
+                    0,
+                    object {
+                        val userList = maybeGroup.get().members.map { user ->
+                            object {
+                                val userId = user.id
+                                val login = user.login
+                                val fullName = user.fullName
+                            }
+
+                        }
+                    },
+                )
+            }
 
             else ->
                 messageProcessorService.pushError(
