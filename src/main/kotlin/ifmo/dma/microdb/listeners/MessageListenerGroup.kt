@@ -58,7 +58,8 @@ private val logger = KotlinLogging.logger {}
                     )
                     return
                 }
-                val existingGroup = groupRepo.findGroupByAdmin(user.get())
+                val existingGroup = Optional.ofNullable(user.get().group)
+
                 if (existingGroup.isPresent) {
                     messageProcessorService.pushSuccessful(
                         groupResponseQueue,
@@ -227,8 +228,15 @@ private val logger = KotlinLogging.logger {}
                     )
                     return
                 }
+                group.members.forEach { user ->
+                    run {
+                        user.group = null
+                        userRepo.save(user)
+                    }
+                }
 
                 groupRepo.delete(group)
+
                 messageProcessorService.pushSuccessful(
                     groupResponseQueue,
                     0,
@@ -261,8 +269,6 @@ private val logger = KotlinLogging.logger {}
                     )
                     return
                 }
-                maybeGroup.get().members.remove(maybeUser.get())
-                groupRepo.delete(maybeGroup.get())
                 messageProcessorService.pushSuccessful(
                     groupResponseQueue,
                     0,

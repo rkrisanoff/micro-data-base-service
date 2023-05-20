@@ -60,7 +60,7 @@ class MessageListenerQueue(
                     return
                 }
                 val maybeManagedGroup = Optional.ofNullable(maybeUser.get().group)
-                if (maybeManagedGroup.isEmpty) {
+                if (maybeGroup.get().admin!!.id?.toLong() != userId) {
                     messageProcessorService.pushSuccessful(
                         queueResponseQueue,
                         3,
